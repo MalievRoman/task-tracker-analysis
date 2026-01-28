@@ -1,8 +1,5 @@
 # Task Tracker Analytics
 
-[![Python](https://img.shields.io/badge/Python-3.7+-blue.svg)](https://www.python.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-12+-blue.svg)](https://www.postgresql.org/)
-
 Анализ системы отслеживания задач: метрики разрешения, качество данных и производительность
 
 ## Обзор проекта

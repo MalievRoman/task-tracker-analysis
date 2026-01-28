@@ -114,8 +114,6 @@ def main():
     print(f"   └─ sla_chart.pdf")
     print(f"   └─ category_distribution.png")
     print(f"   └─ category_distribution.pdf")
-    print(f"   └─ trend_analysis.png")
-    print(f"   └─ trend_analysis.pdf")
     print(f"   └─ resolution_distribution.png")
     print(f"   └─ resolution_distribution.pdf")
     

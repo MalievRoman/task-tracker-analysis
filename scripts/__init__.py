@@ -17,7 +17,6 @@ from .visualizations import (
     close_and_save,
     plot_sla_chart,
     plot_category_distribution,
-    plot_trend_analysis,
     plot_resolution_distribution,
     save_all_visualizations,
 )
@@ -37,7 +36,6 @@ __all__ = [
     'close_and_save',
     'plot_sla_chart',
     'plot_category_distribution',
-    'plot_trend_analysis',
     'plot_resolution_distribution',
     'save_all_visualizations',
 ]

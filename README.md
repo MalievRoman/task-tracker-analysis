@@ -1,4 +1,7 @@
-# Task Tracker Analysis
+# Task Tracker Analytics
+
+[![Python](https://img.shields.io/badge/Python-3.7+-blue.svg)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-12+-blue.svg)](https://www.postgresql.org/)
 
 Анализ системы отслеживания задач: метрики разрешения, качество данных и производительность
 
@@ -29,7 +32,7 @@
 
 - **Высокий процент решения**: 94.67% тикетов успешно разрешены, что свидетельствует об эффективной работе системы поддержки и отсутствии критических сбоев.
 
-- **Same-month разрешение**: 95.48% задач разрешаются в месяц их создания (49,184 из 49,963 решённых тикетов). Это исключительно высокий показатель эффективности.
+- **Same-month разрешение**: 95.48% решённых задач разрешаются в месяц их создания. Это исключительно высокий показатель эффективности.
 
 - **Стабильная операция**: Анализ показывает стабильное распределение нагрузки по дням недели без резких всплесков, что указывает на надёжность инфраструктуры.
 
@@ -44,13 +47,16 @@
 ## Структура проекта
 
 ```
-task-tracker-analysis/
+task-tracker-analytics/
 ├── README.md                    Главный файл проекта
 ├── .gitignore                   Конфигурация Git
 │
+├── analyze_tasks.py             Главный Python скрипт для анализа
+│
 ├── docs/
 │   ├── schema.md               Описание структуры БД
-│   └── analyses_report.md      Полный аналитический отчёт
+│   ├── analyses_report.md      Полный аналитический отчёт
+│   └── presentation.pdf         Презентация результатов
 │
 ├── sql/
 │   ├── 01_init_schema.sql      Инициализация таблиц
@@ -58,12 +64,32 @@ task-tracker-analysis/
 │   ├── 03_data_quality.sql     Проверки качества
 │   └── 04_analysis.sql         Основной анализ
 │
-└── data/
-    ├── issues.csv              Исходные данные
-    └── resolutions.csv         Справочник резолюций
+├── scripts/
+│   ├── __init__.py
+│   ├── analysis.py             Модуль загрузки данных и расчёта метрик
+│   └── visualizations.py       Модуль создания графиков и визуализаций
+│
+├── notebooks/
+│   └── 01_analysis.ipynb       Jupyter ноутбук для интерактивного анализа
+│
+├── data/
+│   ├── issues.csv              Исходные данные (51,955 записей)
+│   └── resolutions.csv         Справочник резолюций (176 записей)
+│
+└── outputs/
+    └── visualizations/          Сохранённые графики (PNG и PDF)
+        ├── sla_chart.png/pdf
+        ├── category_distribution.png/pdf
+        └── resolution_distribution.png/pdf
 ```
 
 ### Описание ключевых файлов
+
+**analyze_tasks.py** — главный Python скрипт для запуска полного анализа. Загружает данные, вычисляет метрики, создаёт визуализации и выводит отчёты в консоль.
+
+**scripts/analysis.py** — модуль для загрузки и очистки данных, расчёта метрик (SLA, квантили, разрешение по категориям) и формирования текстовых отчётов.
+
+**scripts/visualizations.py** — модуль для создания графиков: SLA-анализ, распределение по категориям, распределение времени разрешения. Сохраняет графики в PNG и PDF форматах.
 
 **docs/schema.md** — полная документация структуры базы данных, описание таблиц issues и resolutions, представления issues_clean, обработанные аномалии и индексирование.
 
@@ -75,21 +101,59 @@ task-tracker-analysis/
 
 **sql/03_data_quality.sql** — проверки целостности данных, выявление NULL значений и временных аномалий.
 
-**sql/04_analysis.sql** — основные аналитические запросы для расчёта метрик.
+**sql/04_analysis.sql** — основные аналитические запросы для расчёта метрик (SLA-пороги, квантили, когортный анализ, aging backlog).
+
+**notebooks/01_analysis.ipynb** — Jupyter ноутбук для интерактивного исследования данных и экспериментов с визуализациями.
 
 ## Быстрый старт
 
 ### Требования
 
+**Для Python анализа:**
+- Python 3.7+
+- pandas
+- matplotlib
+- seaborn
+- numpy
+
+**Для SQL анализа:**
 - PostgreSQL 12 и выше
 - SQL клиент (psql)
 - Файлы issues.csv и resolutions.csv
 
-### Инициализация
+### Установка зависимостей Python
+
+```bash
+# Клонируйте репозиторий (если еще не сделали)
+git clone https://github.com/yourusername/task-tracker-analytics.git
+cd task-tracker-analytics
+
+# Установите зависимости
+pip install -r requirements.txt
+```
+
+### Запуск Python анализа
+
+```bash
+# Запуск полного анализа с визуализациями
+python analyze_tasks.py
+```
+
+Скрипт выполнит:
+1. Загрузку и очистку данных из CSV файлов
+2. Расчёт всех метрик (SLA, квантили, разрешение по категориям)
+3. Создание графиков (PNG и PDF) в папке `outputs/visualizations/`
+4. Вывод детального отчёта в консоль
+
+### Запуск SQL анализа
 
 ```bash
 # Создание таблиц
 psql -U username -d database -f sql/01_init_schema.sql
+
+# Загрузка данных (пример)
+\copy issues FROM 'data/issues.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true);
+\copy resolutions FROM 'data/resolutions.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true);
 
 # Очистка данных и создание представлений
 psql -U username -d database -f sql/02_data_cleaning.sql
@@ -103,6 +167,12 @@ psql -U username -d database -f sql/04_analysis.sql
 
 ### Проверка результатов
 
+**Python:**
+После запуска `analyze_tasks.py` проверьте:
+- Консольный вывод с метриками
+- Графики в папке `outputs/visualizations/`
+
+**SQL:**
 ```sql
 -- Просмотр очищенных данных
 SELECT COUNT(*) FROM issues_clean;
@@ -131,18 +201,27 @@ SELECT category, COUNT(*) as count FROM issues_clean GROUP BY category ORDER BY 
 
 ### Процесс очистки данных
 
-1. **Валидация эпохи**: исключены 5 записей с отметками до 2001 года
+1. **Валидация эпохи**: исключены 5 записей с отметками до 2001 года (created < 1000000000000)
 2. **Проверка временных диапазонов**: нет аномалий с resolved < created
 3. **Обработка NULL**: 3 пропущенных created (0.006%), 2,766 пропущенных resolved (5.32%)
 4. **Создание представления**: issues_clean с трансформациями для анализа
 
-### Используемые SQL-техники
+### Инструменты анализа
 
+**Python (analyze_tasks.py):**
+- pandas для загрузки и обработки данных
+- numpy для статистических вычислений
+- matplotlib и seaborn для визуализаций
+- Автоматический расчёт метрик: SLA-пороги (1/3/7/14/30 дней), квантили (P25/P50/P75/P90/P95), разрешение по категориям
+
+**SQL (sql/04_analysis.sql):**
 - **Temporal Functions**: TO_TIMESTAMP для преобразования Unix epochs, DATE_TRUNC для группировки по месяцам
 - **Window Functions**: ROW_NUMBER() для рейтирования резолюций, SUM() OVER для процентного распределения
-- **Aggregate Functions**: COUNT, AVG, MIN, MAX для статистического анализа
+- **Aggregate Functions**: COUNT, AVG, MIN, MAX, PERCENTILE_CONT для статистического анализа
 - **JOIN операции**: связь issues с resolutions для анализа типов закрытия
 - **Indexed Queries**: использование индексов для оптимизации производительности
+- **Cohort Analysis**: анализ по месяцам создания и разрешения
+- **Aging Analysis**: анализ открытых тикетов по возрастным корзинам
 
 ## Ключевые инсайты
 
@@ -196,3 +275,12 @@ Same-month resolution по категориям:
 1. Работа с 2,766 открытыми тикетами для повышения процента решения
 2. Оптимизация справочника резолюций (171 неиспользуемая запись)
 3. Улучшение качества данных и валидации на уровне системы
+
+## Авторы
+
+- **Data Analyst** - Изначальная разработка
+
+## Благодарности
+
+- Данные предоставлены системой Task Tracker
+- Использованы библиотеки: pandas, matplotlib, seaborn, numpy

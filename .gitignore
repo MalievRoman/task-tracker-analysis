@@ -60,3 +60,35 @@ ehthumbs.db
 *.sql.bak
 query_output.txt
 debug_output.txt
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Outputs (опционально - можно закомментировать если хотите сохранять графики)
+# outputs/visualizations/*.png
+# outputs/visualizations/*.pdf

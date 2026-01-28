@@ -1,8 +1,3 @@
-"""
-Переиспользуемые функции для создания визуализаций
-Содержит функции сохранения графиков в PNG/PDF
-"""
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
